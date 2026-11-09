@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingresar | Recetario de Soya - UNIMINUTO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="pagina.css">
+</head>
+<body>
+
+    <header class="barra">
+        <a class="marca" href="index.html">
+            <span class="marca-logo" role="img" aria-label="Logo UNIMINUTO"></span>
+            <span class="marca-texto">
+                <strong>UNIMINUTO</strong>
+                <small>Recetario de Soya</small>
+            </span>
+        </a>
+        <nav class="menu">
+            <a href="index.html">Inicio</a>
+            <a href="pan-de-soya.html">Pan de soya</a>
+            <a href="mantecada-de-soya.html">Mantecada de soya</a>
+            <a href="arepas-de-soya.html">Arepas de soya</a>
+            <a href="videos.html">Videos</a>
+            <a href="recetas.html">Más recetas</a>
+        </nav>
+    </header>
+
+    <section class="recetas">
+        <h2 class="titulo-seccion">Acceso <span>administrador</span></h2>
+        <div style="max-width:460px;margin:0 auto">
+            <form class="formulario" id="login" novalidate>
+                <label class="campo">Correo
+                    <input type="email" id="correo" autocomplete="username" required>
+                </label>
+                <label class="campo" for="clave">Contraseña</label>
+                <div class="clave-caja">
+                    <input type="password" id="clave" autocomplete="current-password" maxlength="128" required>
+                    <button type="button" class="boton boton-secundario" id="ver-clave" aria-pressed="false">Mostrar</button>
+                </div>
+                <p class="etapa-ayuda" id="aviso-mayus" hidden>⚠ Tienes activado el bloqueo de mayúsculas.</p>
+                <button type="button" class="enlace-boton" id="olvide">¿Olvidaste tu contraseña?</button>
+                <div id="mensaje"></div>
+                <div class="botones-etapa">
+                    <span></span>
+                    <button type="submit" class="boton boton-azul" id="entrar">Entrar</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <footer class="pie">
+        <p><strong>Corporación Universitaria Minuto de Dios - UNIMINUTO</strong></p>
+        <p>Práctica de Responsabilidad Social · Proyecto "Seguridad Alimentaria: Saberes y Conocimientos"</p>
+        <p><a href="login.html" style="opacity:.7;font-size:.85em">Acceso administrador</a></p>
+    </footer>
+
+    <script type="module" src="js/login.js"></script>
+</body>
+</html>

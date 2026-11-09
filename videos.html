@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Videos | Recetario de Soya - UNIMINUTO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="pagina.css">
+</head>
+<body>
+
+    <header class="barra">
+        <a class="marca" href="index.html">
+            <span class="marca-logo" role="img" aria-label="Logo UNIMINUTO"></span>
+            <span class="marca-texto">
+                <strong>UNIMINUTO</strong>
+                <small>Recetario de Soya</small>
+            </span>
+        </a>
+        <nav class="menu">
+            <a href="index.html">Inicio</a>
+            <a href="pan-de-soya.html">Pan de soya</a>
+            <a href="mantecada-de-soya.html">Mantecada de soya</a>
+            <a href="arepas-de-soya.html">Arepas de soya</a>
+            <a href="videos.html" class="activo">Videos</a>
+            <a href="recetas.html">Más recetas</a>
+        </nav>
+    </header>
+
+    <section class="recetas">
+        <h2 class="titulo-seccion">Videos de <span>recetas</span></h2>
+        <h3 class="subtitulo-seccion">Recetas preparadas por estudiantes en semestres anteriores</h3>
+
+        <div id="zona-admin-videos" hidden style="max-width:700px;margin:0 auto 40px">
+            <form class="formulario" id="form-video" novalidate>
+                <h3>Agregar un video</h3>
+                <label class="campo">Título
+                    <input type="text" id="titulo" maxlength="100" placeholder="Ej: Pan de soya - Semestre 2026-1">
+                </label>
+                <label class="campo">Enlace de YouTube
+                    <input type="text" id="enlace" placeholder="https://www.youtube.com/watch?v=...">
+                </label>
+                <label class="campo">Descripción (opcional)
+                    <input type="text" id="descripcion" maxlength="200">
+                </label>
+                <div id="mensaje"></div>
+                <div class="botones-etapa">
+                    <span></span>
+                    <button type="submit" class="boton boton-azul" id="guardar">Agregar video</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tarjetas" id="lista-videos"><p class="estado">Cargando videos...</p></div>
+    </section>
+
+    <footer class="pie">
+        <p><strong>Corporación Universitaria Minuto de Dios - UNIMINUTO</strong></p>
+        <p>Práctica de Responsabilidad Social · Proyecto "Seguridad Alimentaria: Saberes y Conocimientos"</p>
+        <p><a href="login.html" style="opacity:.7;font-size:.85em">Acceso administrador</a></p>
+    </footer>
+
+    <script type="module" src="js/videos.js"></script>
+</body>
+</html>

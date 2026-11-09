@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if receta %}{{ receta.nombre }} | {% endif %}Recetario de Soya - UNIMINUTO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/pagina.css">
+</head>
+<body>
+
+    <header class="barra">
+        <a class="marca" href="{{ url_for('inicio') }}">
+            <span class="marca-logo" role="img" aria-label="Logo UNIMINUTO"></span>
+            <span class="marca-texto">
+                <strong>UNIMINUTO</strong>
+                <small>Recetario de Soya</small>
+            </span>
+        </a>
+        <nav class="menu">
+            <a href="{{ url_for('inicio') }}" class="{% if not receta %}activo{% endif %}">Inicio</a>
+            {% for r in recetas %}
+            <a href="{{ url_for('ver_receta', id_receta=r.id) }}" class="{% if receta and receta.id == r.id %}activo{% endif %}">{{ r.nombre }}</a>
+            {% endfor %}
+            <a href="videos.html">Videos</a>
+            <a href="{{ url_for('todas') }}">Más recetas</a>
+        </nav>
+    </header>
+
+    {% if not receta %}
+
+    <section class="portada">
+        <div class="portada-contenido">
+            <span class="etiqueta">Práctica de Responsabilidad Social</span>
+            <h1>Recetario <span class="resaltado">de Soya</span></h1>
+            <p class="portada-proyecto">Proyecto <strong>"Seguridad Alimentaria: Saberes y Conocimientos"</strong></p>
+            <p>Preparaciones nutritivas y económicas elaboradas en la fundación, con la soya como ingrediente principal.</p>
+            <a class="boton" href="#recetas">Ver recetas</a>
+        </div>
+        <div class="portada-circulo"></div>
+    </section>
+
+    <section class="info">
+        <div class="info-item">
+            <span class="info-numero">{{ recetas|length }}</span>
+            <span>Recetas</span>
+        </div>
+        <div class="info-item">
+            <span class="info-numero">100%</span>
+            <span>A base de soya</span>
+        </div>
+        <div class="info-item">
+            <span class="info-numero">PRS</span>
+            <span>UNIMINUTO</span>
+        </div>
+    </section>
+
+    <section id="recetas" class="recetas">
+        <h2 class="titulo-seccion">Nuestras <span>preparaciones</span></h2>
+        <div class="tarjetas">
+            {% for r in recetas %}
+            <article class="tarjeta">
+                <div class="tarjeta-imagen img-{{ r.id }}">
+                    <span class="tarjeta-numero">{{ loop.index }}</span>
+                </div>
+                <div class="tarjeta-cuerpo">
+                    <h3>{{ r.nombre }}</h3>
+                    <p>{{ r.descripcion }}</p>
+                    <ul class="datos">
+                        <li>{{ r.coccion }}</li>
+                        <li>{{ r.ingredientes|length }} ingredientes</li>
+                    </ul>
+                    <a class="boton boton-azul" href="{{ url_for('ver_receta', id_receta=r.id) }}">Ver preparación</a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+
+        <a class="ver-mas" href="{{ url_for('todas') }}">
+            <span class="ver-mas-texto">
+                <strong>Ver más recetas</strong>
+                <small>Descubre las preparaciones que ha compartido la comunidad</small>
+            </span>
+            <span class="ver-mas-flecha" aria-hidden="true">&rarr;</span>
+        </a>
+    </section>
+
+    {% else %}
+
+    <section class="detalle-portada img-{{ receta.id }}">
+        <div class="detalle-capa">
+            <a class="volver" href="{{ url_for('inicio') }}#recetas">&larr; Volver al recetario</a>
+            <h1>{{ receta.nombre }}</h1>
+            <p>{{ receta.descripcion }}</p>
+            <ul class="datos datos-claro">
+                <li>{{ receta.coccion }}</li>
+                <li>{{ receta.tiempo }}</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="detalle">
+        <aside class="ingredientes">
+            <h2>Ingredientes</h2>
+            <ul>
+                {% for ingrediente in receta.ingredientes %}
+                <li>{{ ingrediente }}</li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <div class="preparacion">
+            <h2>Preparación</h2>
+            <ol>
+                {% for paso in receta.preparacion %}
+                <li><span class="paso">{{ loop.index }}</span><p>{{ paso }}</p></li>
+                {% endfor %}
+            </ol>
+            {% if receta.nota %}
+            <div class="nota">
+                <strong>Nota importante:</strong> {{ receta.nota }}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="otras">
+        <h2 class="titulo-seccion">Otras <span>recetas</span></h2>
+        <div class="otras-lista">
+            {% for r in recetas if r.id != receta.id %}
+            <a class="otra img-{{ r.id }}" href="{{ url_for('ver_receta', id_receta=r.id) }}">
+                <span>{{ r.nombre }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    {% endif %}
+
+    <a class="boton-mas" href="{{ url_for('agregar') }}" title="Agregar una receta" aria-label="Agregar una receta">+</a>
+
+    <footer class="pie">
+        <p><strong>Corporación Universitaria Minuto de Dios - UNIMINUTO</strong></p>
+        <p>Práctica de Responsabilidad Social · Proyecto "Seguridad Alimentaria: Saberes y Conocimientos"</p>
+        <p><a href="login.html" style="opacity:.7;font-size:.85em">Acceso administrador</a></p>
+    </footer>
+
+</body>
+</html>

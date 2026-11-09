@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receta | Recetario de Soya - UNIMINUTO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="pagina.css">
+</head>
+<body>
+
+    <header class="barra">
+        <a class="marca" href="index.html">
+            <span class="marca-logo" role="img" aria-label="Logo UNIMINUTO"></span>
+            <span class="marca-texto">
+                <strong>UNIMINUTO</strong>
+                <small>Recetario de Soya</small>
+            </span>
+        </a>
+        <nav class="menu">
+            <a href="index.html">Inicio</a>
+            <a href="pan-de-soya.html">Pan de soya</a>
+            <a href="mantecada-de-soya.html">Mantecada de soya</a>
+            <a href="arepas-de-soya.html">Arepas de soya</a>
+            <a href="videos.html">Videos</a>
+            <a href="recetas.html" class="activo">Más recetas</a>
+        </nav>
+    </header>
+
+    <section class="detalle-portada img-comunidad" id="portada">
+        <div class="detalle-capa">
+            <a class="volver" href="recetas.html">&larr; Volver a todas las recetas</a>
+            <h1 id="nombre">Cargando...</h1>
+            <p id="descripcion"></p>
+            <ul class="datos datos-claro">
+                <li id="dato-coccion"></li>
+                <li id="dato-tiempo"></li>
+                <li id="dato-autor" hidden></li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="detalle" id="detalle">
+        <aside class="ingredientes">
+            <h2>Ingredientes</h2>
+            <ul id="ingredientes"></ul>
+        </aside>
+
+        <div class="preparacion">
+            <h2>Preparación</h2>
+            <ol id="pasos"></ol>
+            <div class="nota" id="nota" hidden>
+                <strong>Nota importante:</strong> <span id="nota-texto"></span>
+            </div>
+            <div style="margin-top:24px"><button type="button" class="boton boton-secundario" id="eliminar" hidden>Eliminar receta</button></div>
+        </div>
+    </section>
+
+    <a class="boton-mas" href="agregar.html" title="Agregar una receta" aria-label="Agregar una receta">+</a>
+
+    <footer class="pie">
+        <p><strong>Corporación Universitaria Minuto de Dios - UNIMINUTO</strong></p>
+        <p>Práctica de Responsabilidad Social · Proyecto "Seguridad Alimentaria: Saberes y Conocimientos"</p>
+        <p><a href="login.html" style="opacity:.7;font-size:.85em">Acceso administrador</a></p>
+    </footer>
+
+    <script type="module" src="js/receta.js"></script>
+</body>
+</html>

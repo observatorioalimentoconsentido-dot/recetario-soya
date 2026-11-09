@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todas las recetas | Recetario de Soya - UNIMINUTO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="pagina.css">
+</head>
+<body>
+
+    <header class="barra">
+        <a class="marca" href="index.html">
+            <span class="marca-logo" role="img" aria-label="Logo UNIMINUTO"></span>
+            <span class="marca-texto">
+                <strong>UNIMINUTO</strong>
+                <small>Recetario de Soya</small>
+            </span>
+        </a>
+        <nav class="menu">
+            <a href="index.html">Inicio</a>
+            <a href="pan-de-soya.html">Pan de soya</a>
+            <a href="mantecada-de-soya.html">Mantecada de soya</a>
+            <a href="arepas-de-soya.html">Arepas de soya</a>
+            <a href="videos.html">Videos</a>
+            <a href="recetas.html" class="activo">Más recetas</a>
+        </nav>
+    </header>
+
+    <section class="recetas">
+        <h2 class="titulo-seccion">Todas las <span>recetas</span></h2>
+
+        <h3 class="subtitulo-seccion">Recetas de la fundación</h3>
+        <div class="tarjetas">
+            <article class="tarjeta">
+                <div class="tarjeta-imagen img-pan-de-soya"><span class="tarjeta-numero">1</span></div>
+                <div class="tarjeta-cuerpo">
+                    <h3>Pan de soya</h3>
+                    <p>Bolitas de pan horneadas, rellenas de queso y bocadillo.</p>
+                    <a class="boton boton-azul" href="pan-de-soya.html">Ver preparación</a>
+                </div>
+            </article>
+            <article class="tarjeta">
+                <div class="tarjeta-imagen img-mantecada-de-soya"><span class="tarjeta-numero">2</span></div>
+                <div class="tarjeta-cuerpo">
+                    <h3>Mantecada de soya</h3>
+                    <p>Un ponqué suave y esponjoso preparado con soya licuada.</p>
+                    <a class="boton boton-azul" href="mantecada-de-soya.html">Ver preparación</a>
+                </div>
+            </article>
+            <article class="tarjeta">
+                <div class="tarjeta-imagen img-arepas-de-soya"><span class="tarjeta-numero">3</span></div>
+                <div class="tarjeta-cuerpo">
+                    <h3>Arepas de soya</h3>
+                    <p>Arepas doradas a la plancha, con queso y un toque dulce opcional.</p>
+                    <a class="boton boton-azul" href="arepas-de-soya.html">Ver preparación</a>
+                </div>
+            </article>
+        </div>
+
+        <h3 class="subtitulo-seccion">Más recetas</h3>
+        <div class="tarjetas" id="lista-comunidad">
+            <p class="estado">Cargando recetas...</p>
+        </div>
+    </section>
+
+    <a class="boton-mas" href="agregar.html" title="Agregar una receta" aria-label="Agregar una receta">+</a>
+
+    <footer class="pie">
+        <p><strong>Corporación Universitaria Minuto de Dios - UNIMINUTO</strong></p>
+        <p>Práctica de Responsabilidad Social · Proyecto "Seguridad Alimentaria: Saberes y Conocimientos"</p>
+        <p><a href="login.html" style="opacity:.7;font-size:.85em">Acceso administrador</a></p>
+    </footer>
+
+    <script type="module" src="js/lista.js"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar receta | Recetario de Soya - UNIMINUTO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="pagina.css">
+</head>
+<body>
+
+    <header class="barra">
+        <a class="marca" href="index.html">
+            <span class="marca-logo" role="img" aria-label="Logo UNIMINUTO"></span>
+            <span class="marca-texto">
+                <strong>UNIMINUTO</strong>
+                <small>Recetario de Soya</small>
+            </span>
+        </a>
+        <nav class="menu">
+            <a href="index.html">Inicio</a>
+            <a href="pan-de-soya.html">Pan de soya</a>
+            <a href="mantecada-de-soya.html">Mantecada de soya</a>
+            <a href="arepas-de-soya.html">Arepas de soya</a>
+            <a href="videos.html">Videos</a>
+            <a href="recetas.html">Más recetas</a>
+        </nav>
+    </header>
+
+    <section class="recetas">
+        <h2 class="titulo-seccion" id="titulo-agregar">Agregar <span>receta</span></h2>
+
+        <div id="zona-admin" hidden>
+        <div id="barra-admin" hidden>
+            <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-bottom:14px">
+                <a class="boton boton-azul" href="solicitudes.html">Ver solicitudes</a>
+                <button type="button" class="boton boton-secundario" id="salir">Cerrar sesión</button>
+            </div>
+        </div>
+        <div id="aviso-visitante" class="alerta alerta-info" style="max-width:1150px;margin:0 auto 20px" hidden>
+            Tu receta no se publica de inmediato: el administrador la revisará y, si la aprueba, aparecerá en la página.
+        </div>
+        <div id="gracias" class="estado" hidden>
+            <h3>¡Gracias por compartir tu receta!</h3>
+            <p>Fue enviada al administrador para su revisión.</p>
+            <a class="boton" href="index.html">Volver al inicio</a>
+        </div>
+        <div class="agregar" id="contenedor-form">
+            <form class="formulario" id="formulario" novalidate>
+                <ol class="pasos-indicador">
+                    <li data-indicador="1" class="actual">1. Ingredientes</li>
+                    <li data-indicador="2">2. Preparación</li>
+                    <li data-indicador="3">3. Imagen</li>
+                </ol>
+
+                <!-- ETAPA 1: nombre e ingredientes -->
+                <div class="etapa" data-etapa="1">
+                    <h2>Ingredientes</h2>
+                    <p class="etapa-ayuda">Escribe el nombre de la receta y agrega los ingredientes uno por uno. Los verás en la caja de la derecha.</p>
+
+                    <label class="campo">Nombre de la receta
+                        <input type="text" id="nombre" maxlength="80" placeholder="Ej: Galletas de soya">
+                    </label>
+                    <label class="campo">Descripción corta
+                        <input type="text" id="descripcion" maxlength="200" placeholder="Ej: Galletas crocantes para el algo">
+                    </label>
+                    <label class="campo">Cocción
+                        <input type="text" id="coccion" maxlength="80" placeholder="Ej: Horno 180 °C  /  Sartén o plancha">
+                    </label>
+                    <label class="campo">Tiempo
+                        <input type="text" id="tiempo" maxlength="80" placeholder="Ej: 1 h 30 min aprox.">
+                    </label>
+
+                    <label class="campo" for="ingrediente">Ingrediente</label>
+                    <div class="fila-agregar">
+                        <input type="text" id="ingrediente" maxlength="150" placeholder="Ej: 2 tazas de soya hidratada">
+                        <button type="button" class="boton boton-azul" id="agregar-ingrediente">Agregar</button>
+                    </div>
+
+                    <div class="botones-etapa">
+                        <span></span>
+                        <button type="button" class="boton" data-ir="2">Siguiente &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- ETAPA 2: pasos de preparación -->
+                <div class="etapa" data-etapa="2" hidden>
+                    <h2>Preparación</h2>
+                    <p class="etapa-ayuda">Escribe las indicaciones paso por paso, en orden.</p>
+
+                    <label class="campo" for="paso">Paso</label>
+                    <div class="fila-agregar">
+                        <textarea id="paso" rows="3" maxlength="600" placeholder="Ej: Lave la soya y déjela en agua durante la noche."></textarea>
+                        <button type="button" class="boton boton-azul" id="agregar-paso">Agregar paso</button>
+                    </div>
+
+                    <div class="preparacion" style="box-shadow:none;padding:0">
+                        <ol class="lista-pasos" id="lista-pasos"></ol>
+                    </div>
+
+                    <label class="campo" for="nota">Nota importante (opcional)</label>
+                    <div class="fila-agregar">
+                        <textarea id="nota" rows="2" maxlength="400" placeholder="Ej: El tiempo y la temperatura son aproximados. Verifique la cocción antes de retirar del horno."></textarea>
+                    </div>
+
+                    <div class="botones-etapa">
+                        <button type="button" class="boton boton-secundario" data-ir="1">&larr; Atrás</button>
+                        <button type="button" class="boton" data-ir="3">Siguiente &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- ETAPA 3: imagen opcional y publicar -->
+                <div class="etapa" data-etapa="3" hidden>
+                    <div id="bloque-imagen">
+                    <h2>Imagen (opcional)</h2>
+                    <p class="etapa-ayuda">Puedes agregar una foto de la preparación. Se revisa automáticamente: solo se aceptan fotos de comida, y no se permiten imágenes inapropiadas.</p>
+
+                    <label class="opcion-imagen">
+                        <input type="checkbox" id="quiere-imagen"> Quiero agregar una imagen
+                    </label>
+
+                    <div id="zona-imagen" hidden>
+                        <input type="file" id="archivo" accept="image/png, image/jpeg, image/webp">
+                        <img id="vista-previa" class="vista-previa" alt="Vista previa de la imagen" hidden>
+                        <div id="estado-imagen"></div>
+                    </div>
+                    </div>
+
+                    <div id="bloque-autor" hidden>
+                        <h2>Tu nombre (opcional)</h2>
+                        <p class="etapa-ayuda">Si quieres, escribe tu nombre para darte el crédito de la receta. Puedes dejarlo vacío.</p>
+                        <label class="campo">Nombre
+                            <input type="text" id="autor" maxlength="60" placeholder="Ej: María Pérez" autocomplete="off">
+                        </label>
+                        <!-- Campo trampa para robots: las personas no lo ven -->
+                        <div style="position:absolute;left:-9999px" aria-hidden="true">
+                            <label>No llenar este campo <input type="text" id="web" tabindex="-1" autocomplete="off"></label>
+                        </div>
+                    </div>
+
+                    <div class="botones-etapa">
+                        <button type="button" class="boton boton-secundario" data-ir="2">&larr; Atrás</button>
+                        <button type="submit" class="boton boton-azul" id="publicar">Publicar receta</button>
+                    </div>
+                </div>
+
+                <div id="mensaje"></div>
+            </form>
+
+            <!-- Caja aparte donde se ven los ingredientes -->
+            <aside class="ingredientes">
+                <h2>Ingredientes</h2>
+                <ul id="lista-ingredientes">
+                    <li class="vacio">Aún no has agregado ingredientes.</li>
+                </ul>
+            </aside>
+        </div>
+        </div>
+    </section>
+
+    <footer class="pie">
+        <p><strong>Corporación Universitaria Minuto de Dios - UNIMINUTO</strong></p>
+        <p>Práctica de Responsabilidad Social · Proyecto "Seguridad Alimentaria: Saberes y Conocimientos"</p>
+        <p><a href="login.html" style="opacity:.7;font-size:.85em">Acceso administrador</a></p>
+    </footer>
+
+    <script type="module" src="js/agregar.js"></script>
+</body>
+</html>

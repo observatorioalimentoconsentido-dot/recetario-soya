@@ -1,0 +1,85 @@
+rules_version = '2';
+
+// Reglas de seguridad de la base de datos.
+// Copia TODO este archivo en: Consola de Firebase -> Firestore Database -> pestaña "Reglas" -> Publicar.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Es administrador quien tiene sesión Y existe un documento admins/<su uid>.
+    function esAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Cada usuario solo puede consultar su propio documento (para saber si es admin).
+    // Nadie puede crear administradores desde la página: se crean a mano en la consola.
+    match /admins/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+
+    match /recetas/{receta} {
+      // Cualquiera puede ver las recetas.
+      allow read: if true;
+
+      // Solo el administrador puede crear y borrar, y la receta debe tener el formato correcto.
+      allow create: if esAdmin() && recetaValida(request.resource.data);
+      allow delete: if esAdmin();
+      allow update: if false;
+    }
+
+    // Videos de YouTube: todos los ven, solo el administrador agrega o borra.
+    match /videos/{video} {
+      allow read: if true;
+      allow create: if esAdmin() && videoValido(request.resource.data);
+      allow delete: if esAdmin();
+      allow update: if false;
+    }
+
+    // Propuestas de visitantes: cualquiera puede ENVIAR una, pero solo el administrador puede
+    // verlas, aprobarlas o borrarlas. Nada de aquí se muestra en la página.
+    match /pendientes/{propuesta} {
+      allow create: if pendienteValida(request.resource.data);
+      allow read, delete: if esAdmin();
+      allow update: if false;
+    }
+
+    function videoValido(v) {
+      return v.keys().hasOnly(['titulo', 'ytId', 'descripcion', 'fecha'])
+        && v.keys().hasAll(['titulo', 'ytId', 'descripcion', 'fecha'])
+        && v.titulo is string && v.titulo.size() >= 3 && v.titulo.size() <= 100
+        && v.ytId is string && v.ytId.size() == 11
+        && (v.descripcion == null || (v.descripcion is string && v.descripcion.size() <= 200))
+        && v.fecha == request.time;
+    }
+
+    function pendienteValida(r) {
+      return r.keys().hasOnly(['nombre', 'descripcion', 'coccion', 'tiempo', 'ingredientes', 'preparacion', 'nota', 'autor', 'fecha'])
+        && r.keys().hasAll(['nombre', 'descripcion', 'coccion', 'tiempo', 'ingredientes', 'preparacion', 'nota', 'autor', 'fecha'])
+        && r.nombre is string && r.nombre.size() >= 3 && r.nombre.size() <= 80
+        && r.descripcion is string && r.descripcion.size() >= 1 && r.descripcion.size() <= 200
+        && r.coccion is string && r.coccion.size() >= 1 && r.coccion.size() <= 80
+        && r.tiempo is string && r.tiempo.size() >= 1 && r.tiempo.size() <= 80
+        && r.ingredientes is list && r.ingredientes.size() >= 1 && r.ingredientes.size() <= 40
+        && r.preparacion is list && r.preparacion.size() >= 1 && r.preparacion.size() <= 30
+        && (r.nota == null || (r.nota is string && r.nota.size() <= 400))
+        && (r.autor == null || (r.autor is string && r.autor.size() >= 1 && r.autor.size() <= 60))
+        && r.fecha == request.time;
+    }
+
+    function recetaValida(r) {
+      return r.keys().hasOnly(['nombre', 'descripcion', 'coccion', 'tiempo', 'ingredientes', 'preparacion', 'nota', 'autor', 'imagen', 'fecha'])
+        && r.keys().hasAll(['nombre', 'descripcion', 'coccion', 'tiempo', 'ingredientes', 'preparacion', 'nota', 'autor', 'imagen', 'fecha'])
+        && r.nombre is string && r.nombre.size() >= 3 && r.nombre.size() <= 80
+        && r.descripcion is string && r.descripcion.size() >= 1 && r.descripcion.size() <= 200
+        && r.coccion is string && r.coccion.size() >= 1 && r.coccion.size() <= 80
+        && r.tiempo is string && r.tiempo.size() >= 1 && r.tiempo.size() <= 80
+        && r.ingredientes is list && r.ingredientes.size() >= 1 && r.ingredientes.size() <= 40
+        && r.preparacion is list && r.preparacion.size() >= 1 && r.preparacion.size() <= 30
+        && (r.nota == null || (r.nota is string && r.nota.size() <= 400))
+        && (r.autor == null || (r.autor is string && r.autor.size() >= 1 && r.autor.size() <= 60))
+        && (r.imagen == null || (r.imagen is string && r.imagen.size() <= 350000))
+        && r.fecha == request.time;
+    }
+  }
+}
