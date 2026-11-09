@@ -1,4 +1,4 @@
-// Muestra las recetas de la comunidad en recetas.html
+// Muestra las recetas guardadas en la base de datos (sección "Más recetas") en recetas.html
 import { configurado, obtenerRecetas, ponerImagen } from "./comunidad.js";
 
 const lista = document.getElementById("lista-comunidad");
@@ -12,7 +12,7 @@ function mensaje(texto, conBoton) {
         const boton = document.createElement("a");
         boton.className = "boton";
         boton.href = "agregar.html";
-        boton.textContent = "Agregar receta";
+        boton.textContent = "Proponer una receta";
         p.append(document.createElement("br"), boton);
     }
     lista.appendChild(p);
@@ -67,7 +67,7 @@ async function mostrar() {
     try {
         const recetas = await obtenerRecetas();
         if (recetas.length === 0) {
-            mensaje("Por ahora no hay más recetas.");
+            mensaje("Por ahora no hay más recetas. ¡Puedes proponer la tuya!", true);
             return;
         }
         lista.innerHTML = "";

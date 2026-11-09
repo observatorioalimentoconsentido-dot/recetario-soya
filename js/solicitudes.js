@@ -1,6 +1,6 @@
 // Solicitudes de visitantes (solicitudes.html): el administrador las aprueba o las rechaza.
 import {
-    configurado, esAdmin, obtenerPendientes, aprobarPendiente, rechazarPendiente,
+    configurado, esAdmin, obtenerPendientes, aprobarPendiente, rechazarPendiente, cerrarSesion,
 } from "./comunidad.js";
 
 const lista = document.getElementById("lista");
@@ -111,5 +111,9 @@ if (!configurado || !(await esAdmin())) {
     location.replace("login.html");
 } else {
     document.getElementById("zona").hidden = false;
+    document.getElementById("salir").addEventListener("click", async () => {
+        await cerrarSesion();
+        location.href = "login.html";
+    });
     await mostrar();
 }

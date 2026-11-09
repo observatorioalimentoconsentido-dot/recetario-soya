@@ -997,3 +997,38 @@ label.campo[for="clave"] {
     aspect-ratio: 16 / 9;
     border: 0;
 }
+
+/* Portada: dos botones juntos */
+.portada-botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.boton-claro {
+    background: transparent;
+    color: var(--blanco);
+    border: 3px solid var(--amarillo);
+    box-shadow: none;
+}
+
+.boton-claro:hover {
+    background: var(--amarillo);
+    color: var(--azul);
+}
+
+/* Arreglos para pantallas pequeñas */
+.clave-caja input {
+    min-width: 0;
+}
+
+@media (max-width: 480px) {
+    .menu {
+        gap: 2px 4px;
+    }
+
+    .menu a {
+        padding: 8px 11px;
+        font-size: 14px;
+    }
+}

@@ -36,7 +36,10 @@
             <h1>Recetario <span class="resaltado">de Soya</span></h1>
             <p class="portada-proyecto">Proyecto <strong>"Seguridad Alimentaria: Saberes y Conocimientos"</strong></p>
             <p>Preparaciones nutritivas y económicas elaboradas en la fundación, con la soya como ingrediente principal.</p>
-            <a class="boton" href="#recetas">Ver recetas</a>
+            <div class="portada-botones">
+                <a class="boton" href="#recetas">Ver recetas</a>
+                <a class="boton boton-claro" href="videos.html">Ver videos</a>
+            </div>
         </div>
         <div class="portada-circulo"></div>
     </section>
@@ -80,7 +83,7 @@
         <a class="ver-mas" href="{{ url_for('todas') }}">
             <span class="ver-mas-texto">
                 <strong>Ver más recetas</strong>
-                <small>Descubre las preparaciones que ha compartido la comunidad</small>
+                <small>Descubre más preparaciones de la fundación</small>
             </span>
             <span class="ver-mas-flecha" aria-hidden="true">&rarr;</span>
         </a>
@@ -138,7 +141,7 @@
 
     {% endif %}
 
-    <a class="boton-mas" href="{{ url_for('agregar') }}" title="Agregar una receta" aria-label="Agregar una receta">+</a>
+    <a class="boton-mas" href="{{ url_for('agregar') }}" title="Agregar o proponer una receta" aria-label="Agregar o proponer una receta">+</a>
 
     <footer class="pie">
         <p><strong>Corporación Universitaria Minuto de Dios - UNIMINUTO</strong></p>

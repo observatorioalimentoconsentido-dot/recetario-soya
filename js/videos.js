@@ -1,6 +1,6 @@
 // Videos de YouTube (videos.html). Solo se guardan los enlaces; el video lo carga YouTube.
 import {
-    configurado, esAdmin, obtenerVideos, guardarVideo, eliminarVideo, extraerIdYoutube,
+    configurado, esAdmin, obtenerVideos, guardarVideo, eliminarVideo, extraerIdYoutube, cerrarSesion,
 } from "./comunidad.js";
 
 const $ = (id) => document.getElementById(id);
@@ -94,7 +94,13 @@ async function cargar() {
 }
 
 admin = await esAdmin();
-if (admin) $("zona-admin-videos").hidden = false;
+if (admin) {
+    $("zona-admin-videos").hidden = false;
+    $("salir").addEventListener("click", async () => {
+        await cerrarSesion();
+        location.href = "login.html";
+    });
+}
 
 $("form-video").addEventListener("submit", async (e) => {
     e.preventDefault();
