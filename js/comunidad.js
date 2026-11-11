@@ -11,8 +11,6 @@ import {
     getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { firebaseConfig } from "./firebase-config.js";
-// Se lee así (y no con un import con nombre) para que el sitio no se dañe si el archivo de configuración no tiene esta línea.
-import * as ajustes from "./firebase-config.js";
 
 export const configurado = !firebaseConfig.apiKey.startsWith("PEGA_AQUI");
 
@@ -20,22 +18,6 @@ let db = null;
 let auth = null;
 if (configurado) {
     const app = initializeApp(firebaseConfig);
-    // Protección contra robots (Firebase App Check + reCAPTCHA Enterprise). Solo se activa si en firebase-config.js
-    // existe la línea:  export const appCheckSiteKey = "TU_CLAVE_DE_SITIO";
-    const claveAppCheck = ajustes.appCheckSiteKey || "";
-    if (claveAppCheck) {
-        // Si App Check o reCAPTCHA fallan, la página sigue funcionando (solo se avisa en la consola).
-        try {
-            const { initializeAppCheck, ReCaptchaEnterpriseProvider } =
-                await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js");
-            initializeAppCheck(app, {
-                provider: new ReCaptchaEnterpriseProvider(claveAppCheck),
-                isTokenAutoRefreshEnabled: true,
-            });
-        } catch (e) {
-            console.warn("App Check no se pudo iniciar:", e);
-        }
-    }
     db = getFirestore(app);
     auth = getAuth(app);
 }

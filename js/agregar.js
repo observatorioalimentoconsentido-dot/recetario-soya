@@ -62,6 +62,10 @@ function registrarEnvio() {
     try { localStorage.setItem("propuestas", JSON.stringify([...enviosRecientes(), Date.now()])); } catch { /* sin almacenamiento */ }
 }
 
+// Anti-spam simple: un formulario enviado en pocos segundos lo llenó un programa, no una persona.
+const CARGADA_EN = Date.now();
+const SEGUNDOS_MINIMOS = 15;
+
 function errorLimite() {
     const envios = enviosRecientes();
     if (envios.length >= MAX_ENVIOS_POR_HORA) return "Ya enviaste varias propuestas en la última hora. Intenta de nuevo más tarde.";
@@ -363,6 +367,9 @@ $("formulario").addEventListener("submit", async (e) => {
 
     if (!modoAdmin) {
         if ($("web").value) return gracias(); // campo trampa: un robot lo llenó, se ignora en silencio
+        if (Date.now() - CARGADA_EN < SEGUNDOS_MINIMOS * 1000) {
+            return mostrarMensaje("Revisa bien tu receta y vuelve a pulsar el botón en unos segundos.");
+        }
         const eAutor = errorTexto($("autor").value.trim(), "Nombre");
         if (eAutor) return mostrarMensaje(eAutor);
         const eLimite = errorLimite();
