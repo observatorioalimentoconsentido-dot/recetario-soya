@@ -14,6 +14,7 @@ export const firebaseConfig = {
     projectId: "recetario-de-soya",
     storageBucket: "recetario-de-soya.firebasestorage.app",
     messagingSenderId: "49763812390",
-    appId: "1:49763812390:web:3d5bc79009ac1bceab12e7",
-    appCheckSiteKey = "6LdaSBsuAAAAAC36UoLPkIZkJVdax08yb5iq7GdS";
+    appId: "1:49763812390:web:3d5bc79009ac1bceab12e7"
 };
+
+export const appCheckSiteKey = "6LdaSBsuAAAAAC36UoLPkIZkJVdax08yb5iq7GdS";
