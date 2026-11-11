@@ -5,7 +5,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
     getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, updateDoc, doc, writeBatch,
-    query, orderBy, limit, serverTimestamp,
+    query, orderBy, limit, startAfter, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {
     getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail,
@@ -20,14 +20,14 @@ let db = null;
 let auth = null;
 if (configurado) {
     const app = initializeApp(firebaseConfig);
-    // Protección contra robots (Firebase App Check + reCAPTCHA). Solo se activa si en firebase-config.js
+    // Protección contra robots (Firebase App Check + reCAPTCHA Enterprise). Solo se activa si en firebase-config.js
     // existe la línea:  export const appCheckSiteKey = "TU_CLAVE_DE_SITIO";
     const claveAppCheck = ajustes.appCheckSiteKey || "";
     if (claveAppCheck) {
-        const { initializeAppCheck, ReCaptchaV3Provider } =
+        const { initializeAppCheck, ReCaptchaEnterpriseProvider } =
             await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js");
         initializeAppCheck(app, {
-            provider: new ReCaptchaV3Provider(claveAppCheck),
+            provider: new ReCaptchaEnterpriseProvider(claveAppCheck),
             isTokenAutoRefreshEnabled: true,
         });
     }
@@ -47,12 +47,30 @@ export function imagenSegura(imagen) {
     return typeof imagen === "string" && PATRON_IMAGEN.test(imagen) ? imagen : null;
 }
 
-/** Recetas de la base de datos, de la más nueva a la más vieja. */
-export async function obtenerRecetas() {
+/** Recetas por páginas, de la más nueva a la más vieja. Cada receta trae solo la miniatura (liviana).
+ *  Devuelve { recetas, cursor, hayMas }. Para la página siguiente, pasar el cursor anterior. */
+export async function obtenerRecetas(cursor = null, tamano = 12) {
     revisar();
-    const consulta = query(collection(db, "recetas"), orderBy("fecha", "desc"), limit(100));
-    const resultado = await getDocs(consulta);
-    return resultado.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const partes = [orderBy("fecha", "desc")];
+    if (cursor) partes.push(startAfter(cursor));
+    partes.push(limit(tamano + 1)); // una de más, solo para saber si hay otra página
+    const resultado = await getDocs(query(collection(db, "recetas"), ...partes));
+    const docs = resultado.docs;
+    const hayMas = docs.length > tamano;
+    const pagina = hayMas ? docs.slice(0, tamano) : docs;
+    return {
+        recetas: pagina.map((d) => ({ id: d.id, ...d.data() })),
+        cursor: pagina.length ? pagina[pagina.length - 1] : null,
+        hayMas,
+    };
+}
+
+/** Foto grande de una receta (guardada aparte, en la colección "imagenes"), o null. */
+export async function obtenerImagenReceta(id) {
+    revisar();
+    if (!/^[A-Za-z0-9]{1,40}$/.test(id)) return null;
+    const d = await getDoc(doc(db, "imagenes", id));
+    return d.exists() ? imagenSegura(d.data().datos) : null;
 }
 
 /** Una receta por su id, o null si no existe. */
@@ -66,7 +84,17 @@ export async function obtenerReceta(id) {
 /** Guarda una receta nueva (solo funciona si hay un administrador con sesión). Devuelve su id. */
 export async function guardarReceta(r) {
     revisar();
-    const nuevo = await addDoc(collection(db, "recetas"), {
+    const lote = writeBatch(db);
+    const nueva = doc(collection(db, "recetas"));
+    lote.set(nueva, camposReceta(r, true));
+    if (r.imagen) lote.set(doc(db, "imagenes", nueva.id), { datos: r.imagen });
+    await lote.commit();
+    return nueva.id;
+}
+
+// La receta guarda solo una miniatura (liviana, para las listas). La foto grande va aparte en "imagenes/<id>".
+function camposReceta(r, conFecha) {
+    const c = {
         nombre: r.nombre,
         descripcion: r.descripcion,
         coccion: r.coccion,
@@ -75,10 +103,11 @@ export async function guardarReceta(r) {
         preparacion: r.preparacion,
         nota: r.nota || null,
         autor: r.autor || null,
-        imagen: r.imagen || null,
-        fecha: serverTimestamp(),
-    });
-    return nuevo.id;
+        imagen: null,
+        miniatura: r.imagen ? (r.miniatura || null) : null,
+    };
+    if (conFecha) c.fecha = serverTimestamp();
+    return c;
 }
 
 // ---------- Propuestas de visitantes (quedan pendientes hasta que el administrador las apruebe) ----------
@@ -134,17 +163,11 @@ export async function rechazarPendiente(id) {
 /** Edita una receta ya publicada (solo administrador). No cambia la fecha original. */
 export async function actualizarReceta(id, r) {
     revisar();
-    await updateDoc(doc(db, "recetas", id), {
-        nombre: r.nombre,
-        descripcion: r.descripcion,
-        coccion: r.coccion,
-        tiempo: r.tiempo,
-        ingredientes: r.ingredientes,
-        preparacion: r.preparacion,
-        nota: r.nota || null,
-        autor: r.autor || null,
-        imagen: r.imagen || null,
-    });
+    const lote = writeBatch(db);
+    lote.update(doc(db, "recetas", id), camposReceta(r, false));
+    if (r.imagen) lote.set(doc(db, "imagenes", id), { datos: r.imagen });
+    else lote.delete(doc(db, "imagenes", id));
+    await lote.commit();
 }
 
 /** Una propuesta pendiente por su id (solo administrador), o null. */
@@ -160,18 +183,8 @@ export async function publicarDesdePropuesta(idPendiente, r) {
     revisar();
     const lote = writeBatch(db);
     const nueva = doc(collection(db, "recetas"));
-    lote.set(nueva, {
-        nombre: r.nombre,
-        descripcion: r.descripcion,
-        coccion: r.coccion,
-        tiempo: r.tiempo,
-        ingredientes: r.ingredientes,
-        preparacion: r.preparacion,
-        nota: r.nota || null,
-        autor: r.autor || null,
-        imagen: r.imagen || null,
-        fecha: serverTimestamp(),
-    });
+    lote.set(nueva, camposReceta(r, true));
+    if (r.imagen) lote.set(doc(db, "imagenes", nueva.id), { datos: r.imagen });
     lote.delete(doc(db, "pendientes", idPendiente));
     await lote.commit();
     return nueva.id;
@@ -179,7 +192,10 @@ export async function publicarDesdePropuesta(idPendiente, r) {
 
 export async function eliminarReceta(id) {
     revisar();
-    await deleteDoc(doc(db, "recetas", id));
+    const lote = writeBatch(db);
+    lote.delete(doc(db, "recetas", id));
+    lote.delete(doc(db, "imagenes", id));
+    await lote.commit();
 }
 
 // ---------- Login ----------
@@ -301,7 +317,7 @@ export async function rechazarVideoPendiente(id) {
 }
 
 /** Pone la imagen de la receta como fondo de un elemento (o deja el degradado si no tiene). */
-export function ponerImagen(elemento, imagen) {
+export function ponerImagen(elemento, imagen) { // acepta la miniatura o la imagen completa
     const segura = imagenSegura(imagen);
     elemento.classList.add("img-comunidad");
     if (segura) {

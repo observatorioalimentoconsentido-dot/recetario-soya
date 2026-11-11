@@ -66,7 +66,7 @@ const listaRecetas = $("lista-recetas");
 function filaReceta(r) {
     const fila = el("div", "fila-admin");
     const info = el("div", "fila-info");
-    info.append(el("strong", "", r.nombre), el("small", "", `${fechaTexto(r.fecha)} · ${r.autor ? "De " + r.autor : "Administrador"}${r.imagen ? " · con imagen" : ""}`));
+    info.append(el("strong", "", r.nombre), el("small", "", `${fechaTexto(r.fecha)} · ${r.autor ? "De " + r.autor : "Administrador"}${r.miniatura || r.imagen ? " · con imagen" : ""}`));
     const acciones = el("div", "fila-botones");
     acciones.append(
         enlace("Ver", "boton-secundario", `receta.html?id=${encodeURIComponent(r.id)}`),
@@ -88,15 +88,28 @@ function filaReceta(r) {
     return fila;
 }
 
-async function cargarRecetas() {
+let cursorRecetas = null;
+const masRecetas = boton("Ver más recetas", "boton-secundario", () => cargarRecetas(true));
+const masRecetasCaja = el("div", "estado");
+masRecetasCaja.hidden = true;
+masRecetasCaja.appendChild(masRecetas);
+listaRecetas.after(masRecetasCaja);
+
+async function cargarRecetas(siguiente = false) {
+    masRecetas.disabled = true;
     try {
-        const recetas = await obtenerRecetas();
-        listaRecetas.replaceChildren(...recetas.map(filaReceta));
+        const r = await obtenerRecetas(siguiente ? cursorRecetas : null, 20);
+        const filas = r.recetas.map(filaReceta);
+        if (siguiente) listaRecetas.append(...filas); else listaRecetas.replaceChildren(...filas);
+        cursorRecetas = r.cursor;
+        masRecetasCaja.hidden = !r.hayMas;
         vacio(listaRecetas, "Por ahora no hay recetas. Pulsa \"+ Nueva receta\" para agregar la primera.");
     } catch (e) {
         console.error(e);
-        listaRecetas.replaceChildren(el("p", "estado", "No se pudieron cargar las recetas. Recarga la página."));
+        if (!siguiente) listaRecetas.replaceChildren(el("p", "estado", "No se pudieron cargar las recetas. Recarga la página."));
+        else aviso("No se pudieron cargar más recetas.");
     }
+    masRecetas.disabled = false;
 }
 
 // ---------- VIDEOS ----------

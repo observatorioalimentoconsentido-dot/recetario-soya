@@ -1,5 +1,5 @@
 // Muestra una receta de la base de datos en receta.html?id=...
-import { configurado, obtenerReceta, ponerImagen, esAdmin, eliminarReceta } from "./comunidad.js";
+import { configurado, obtenerReceta, obtenerImagenReceta, ponerImagen, esAdmin, eliminarReceta } from "./comunidad.js";
 
 const id = new URLSearchParams(location.search).get("id");
 const nombre = document.getElementById("nombre");
@@ -33,7 +33,12 @@ async function mostrar() {
             document.getElementById("nota-texto").textContent = receta.nota;
             document.getElementById("nota").hidden = false;
         }
-        ponerImagen(document.getElementById("portada"), receta.imagen);
+        // Primero la miniatura (ya descargada); luego la foto grande, que se pide aparte.
+        const portada = document.getElementById("portada");
+        ponerImagen(portada, receta.miniatura || receta.imagen);
+        if (!receta.imagen && receta.miniatura) {
+            obtenerImagenReceta(receta.id).then((grande) => { if (grande) ponerImagen(portada, grande); }).catch(() => {});
+        }
 
         const ingredientes = document.getElementById("ingredientes");
         receta.ingredientes.forEach((texto) => {

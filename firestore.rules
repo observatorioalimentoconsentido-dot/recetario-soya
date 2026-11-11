@@ -87,8 +87,8 @@ service cloud.firestore {
     }
 
     function recetaValida(r) {
-      return r.keys().hasOnly(['nombre', 'descripcion', 'coccion', 'tiempo', 'ingredientes', 'preparacion', 'nota', 'autor', 'imagen', 'fecha'])
-        && r.keys().hasAll(['nombre', 'descripcion', 'coccion', 'tiempo', 'ingredientes', 'preparacion', 'nota', 'autor', 'imagen', 'fecha'])
+      return r.keys().hasOnly(['nombre', 'descripcion', 'coccion', 'tiempo', 'ingredientes', 'preparacion', 'nota', 'autor', 'imagen', 'miniatura', 'fecha'])
+        && r.keys().hasAll(['nombre', 'descripcion', 'coccion', 'tiempo', 'ingredientes', 'preparacion', 'nota', 'autor', 'fecha'])
         && r.nombre is string && r.nombre.size() >= 3 && r.nombre.size() <= 80
         && r.descripcion is string && r.descripcion.size() >= 1 && r.descripcion.size() <= 200
         && r.coccion is string && r.coccion.size() >= 1 && r.coccion.size() <= 80
@@ -97,8 +97,18 @@ service cloud.firestore {
         && r.preparacion is list && r.preparacion.size() >= 1 && r.preparacion.size() <= 30
         && (r.nota == null || (r.nota is string && r.nota.size() <= 400))
         && (r.autor == null || (r.autor is string && r.autor.size() >= 1 && r.autor.size() <= 60))
-        && (r.imagen == null || (r.imagen is string && r.imagen.size() <= 350000))
+        && (!('imagen' in r) || r.imagen == null || (r.imagen is string && r.imagen.size() <= 350000))
+        && (!('miniatura' in r) || r.miniatura == null || (r.miniatura is string && r.miniatura.size() <= 40000))
         && r.fecha is timestamp;
+    }
+
+    // Foto grande de cada receta (mismo id que la receta). Se puede leer una por una, pero no listar todas.
+    match /imagenes/{id} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update: if esAdmin() && request.resource.data.keys().hasOnly(['datos'])
+        && request.resource.data.datos is string && request.resource.data.datos.size() <= 350000;
+      allow delete: if esAdmin();
     }
   }
 }

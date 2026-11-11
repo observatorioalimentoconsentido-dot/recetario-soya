@@ -26,7 +26,7 @@ function crearTarjeta(receta, numero) {
 
     const imagen = document.createElement("div");
     imagen.className = "tarjeta-imagen";
-    ponerImagen(imagen, receta.imagen);
+    ponerImagen(imagen, receta.miniatura || receta.imagen);
     const num = document.createElement("span");
     num.className = "tarjeta-numero";
     num.textContent = numero;
@@ -59,19 +59,47 @@ function crearTarjeta(receta, numero) {
     return tarjeta;
 }
 
+let cursor = null;
+let contador = 3; // las 3 recetas fijas son la 1, 2 y 3
+const masBoton = document.createElement("button");
+masBoton.type = "button";
+masBoton.className = "boton boton-azul";
+masBoton.textContent = "Ver más recetas";
+const masCaja = document.createElement("div");
+masCaja.className = "estado";
+masCaja.hidden = true;
+masCaja.appendChild(masBoton);
+lista.after(masCaja);
+
+async function cargarPagina() {
+    masBoton.disabled = true;
+    const r = await obtenerRecetas(cursor);
+    if (contador === 3 && r.recetas.length === 0) {
+        mensaje("Por ahora no hay más recetas. ¡Puedes proponer la tuya!", true);
+        return;
+    }
+    if (contador === 3) lista.innerHTML = "";
+    r.recetas.forEach((receta) => lista.appendChild(crearTarjeta(receta, ++contador)));
+    cursor = r.cursor;
+    masCaja.hidden = !r.hayMas;
+    masBoton.disabled = false;
+}
+
+masBoton.addEventListener("click", async () => {
+    try { await cargarPagina(); } catch (e) {
+        console.error(e);
+        masBoton.disabled = false;
+        masBoton.textContent = "No se pudo cargar. Intentar de nuevo";
+    }
+});
+
 async function mostrar() {
     if (!configurado) {
         mensaje("Las recetas adicionales aún no están activadas (falta configurar Firebase).");
         return;
     }
     try {
-        const recetas = await obtenerRecetas();
-        if (recetas.length === 0) {
-            mensaje("Por ahora no hay más recetas. ¡Puedes proponer la tuya!", true);
-            return;
-        }
-        lista.innerHTML = "";
-        recetas.forEach((receta, i) => lista.appendChild(crearTarjeta(receta, i + 4)));
+        await cargarPagina();
     } catch (error) {
         console.error(error);
         mensaje("No se pudieron cargar las recetas. Intenta recargar la página.");

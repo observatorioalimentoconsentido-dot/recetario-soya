@@ -4,7 +4,7 @@
 // ============================================================
 import {
     configurado, guardarReceta, guardarPropuesta, esAdmin, cerrarSesion,
-    obtenerReceta, obtenerPendiente, actualizarReceta, publicarDesdePropuesta, imagenSegura,
+    obtenerReceta, obtenerImagenReceta, obtenerPendiente, actualizarReceta, publicarDesdePropuesta, imagenSegura,
 } from "./comunidad.js";
 import { revisarImagen } from "./moderacion.js";
 
@@ -17,6 +17,7 @@ const datos = {
     ingredientes: [],
     pasos: [],
     imagen: null, // imagen aprobada (JPEG en base64) o null
+    miniatura: null, // versión diminuta de la imagen, para las listas
 };
 
 const $ = (id) => document.getElementById(id);
@@ -215,6 +216,7 @@ let revisionActual = 0; // por si el usuario cambia de foto mientras se revisa o
 
 function quitarImagen() {
     datos.imagen = null;
+    datos.miniatura = null;
     $("archivo").value = "";
     vistaPrevia.hidden = true;
     vistaPrevia.removeAttribute("src");
@@ -261,6 +263,24 @@ function aJpeg(canvas) {
     return resultado.length <= PESO_MAXIMO_IMAGEN ? resultado : null;
 }
 
+// Miniatura diminuta (unos 10 KB) para las listas: la foto grande se pide solo al abrir la receta.
+function aMiniatura(canvas) {
+    const m = achicar(canvas, 320);
+    let calidad = 0.6;
+    let r = m.toDataURL("image/jpeg", calidad);
+    while (r.length > 25000 && calidad > 0.2) { calidad -= 0.1; r = m.toDataURL("image/jpeg", calidad); }
+    return r.length <= 40000 ? r : null;
+}
+
+function cargarDesdeTexto(dataUrl) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error("No se pudo leer la imagen."));
+        img.src = dataUrl;
+    });
+}
+
 $("archivo").addEventListener("change", async (e) => {
     const archivo = e.target.files[0];
     datos.imagen = null;
@@ -301,6 +321,7 @@ $("archivo").addEventListener("change", async (e) => {
             return;
         }
         datos.imagen = jpeg;
+        datos.miniatura = aMiniatura(canvas);
         mostrarMensaje("Imagen aprobada ✔", "ok", estadoImagen);
     } catch (error) {
         console.error(error);
@@ -365,7 +386,11 @@ $("formulario").addEventListener("submit", async (e) => {
 
     try {
         if (modoAdmin) {
-            const completa = { ...receta, autor: autorOriginal, imagen: datos.imagen };
+            if (datos.imagen && !datos.miniatura) {
+                // receta antigua con imagen pero sin miniatura: se crea ahora
+                datos.miniatura = aMiniatura(await cargarDesdeTexto(datos.imagen));
+            }
+            const completa = { ...receta, autor: autorOriginal, imagen: datos.imagen, miniatura: datos.miniatura };
             let id;
             if (idEditar) {
                 await actualizarReceta(idEditar, completa);
@@ -440,11 +465,20 @@ async function cargarParaRevisar() {
     dibujarPasos();
     autorOriginal = origen.autor || null;
 
-    if (idEditar && imagenSegura(origen.imagen)) {
-        datos.imagen = origen.imagen;
+    // La foto grande vive aparte (imagenes/<id>); las recetas antiguas la traen dentro.
+    let imagenActual = null;
+    if (idEditar) {
+        imagenActual = imagenSegura(origen.imagen);
+        if (!imagenActual && origen.miniatura) {
+            try { imagenActual = await obtenerImagenReceta(idEditar); } catch (e) { console.error(e); }
+        }
+    }
+    if (imagenActual) {
+        datos.imagen = imagenActual;
+        datos.miniatura = imagenSegura(origen.miniatura);
         $("quiere-imagen").checked = true;
         $("zona-imagen").hidden = false;
-        vistaPrevia.src = origen.imagen;
+        vistaPrevia.src = imagenActual;
         vistaPrevia.hidden = false;
         mostrarMensaje("Esta es la imagen actual. Elige otra para cambiarla, o desmarca la casilla para quitarla.", "info", estadoImagen);
     }
