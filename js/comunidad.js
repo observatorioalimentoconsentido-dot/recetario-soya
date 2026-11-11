@@ -24,12 +24,17 @@ if (configurado) {
     // existe la línea:  export const appCheckSiteKey = "TU_CLAVE_DE_SITIO";
     const claveAppCheck = ajustes.appCheckSiteKey || "";
     if (claveAppCheck) {
-        const { initializeAppCheck, ReCaptchaEnterpriseProvider } =
-            await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js");
-        initializeAppCheck(app, {
-            provider: new ReCaptchaEnterpriseProvider(claveAppCheck),
-            isTokenAutoRefreshEnabled: true,
-        });
+        // Si App Check o reCAPTCHA fallan, la página sigue funcionando (solo se avisa en la consola).
+        try {
+            const { initializeAppCheck, ReCaptchaEnterpriseProvider } =
+                await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js");
+            initializeAppCheck(app, {
+                provider: new ReCaptchaEnterpriseProvider(claveAppCheck),
+                isTokenAutoRefreshEnabled: true,
+            });
+        } catch (e) {
+            console.warn("App Check no se pudo iniciar:", e);
+        }
     }
     db = getFirestore(app);
     auth = getAuth(app);
