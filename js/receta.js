@@ -55,7 +55,8 @@ async function mostrar() {
         });
         if (await esAdmin()) {
             const boton = document.getElementById("eliminar");
-            boton.hidden = false;
+            document.getElementById("acciones-admin").hidden = false;
+            document.getElementById("editar").href = `agregar.html?editar=${encodeURIComponent(receta.id)}`;
             boton.addEventListener("click", async () => {
                 if (!confirm("¿Seguro que quieres eliminar esta receta? No se puede deshacer.")) return;
                 try {

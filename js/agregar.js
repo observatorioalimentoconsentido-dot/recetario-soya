@@ -2,7 +2,10 @@
 //  Formulario para agregar recetas (agregar.html)
 //  Etapa 1: nombre + ingredientes  ->  Etapa 2: pasos  ->  Etapa 3: imagen y publicar
 // ============================================================
-import { configurado, guardarReceta, guardarPropuesta, esAdmin, cerrarSesion } from "./comunidad.js";
+import {
+    configurado, guardarReceta, guardarPropuesta, esAdmin, cerrarSesion,
+    obtenerReceta, obtenerPendiente, actualizarReceta, publicarDesdePropuesta, imagenSegura,
+} from "./comunidad.js";
 import { revisarImagen } from "./moderacion.js";
 
 const MAX_INGREDIENTES = 40;
@@ -315,6 +318,10 @@ $("archivo").addEventListener("change", async (e) => {
 
 // ---------- Publicar (administrador) o enviar propuesta (visitante) ----------
 let modoAdmin = false;
+let etiquetaBoton = "Publicar receta";
+let idEditar = null;     // receta publicada que se está editando
+let idPropuesta = null;  // propuesta pendiente que se está revisando
+let autorOriginal = null; // autor que venía en la receta o propuesta
 
 function gracias() {
     $("contenedor-form").hidden = true;
@@ -342,9 +349,9 @@ $("formulario").addEventListener("submit", async (e) => {
     }
 
     const boton = $("publicar");
-    const textoBoton = modoAdmin ? "Publicar receta" : "Enviar propuesta";
+    const textoBoton = modoAdmin ? etiquetaBoton : "Enviar propuesta";
     boton.disabled = true;
-    boton.textContent = modoAdmin ? "Publicando..." : "Enviando...";
+    boton.textContent = modoAdmin ? "Guardando..." : "Enviando...";
 
     const receta = {
         nombre: $("nombre").value.trim(),
@@ -358,7 +365,16 @@ $("formulario").addEventListener("submit", async (e) => {
 
     try {
         if (modoAdmin) {
-            const id = await guardarReceta({ ...receta, imagen: datos.imagen });
+            const completa = { ...receta, autor: autorOriginal, imagen: datos.imagen };
+            let id;
+            if (idEditar) {
+                await actualizarReceta(idEditar, completa);
+                id = idEditar;
+            } else if (idPropuesta) {
+                id = await publicarDesdePropuesta(idPropuesta, completa);
+            } else {
+                id = await guardarReceta(completa);
+            }
             location.href = `receta.html?id=${encodeURIComponent(id)}`;
         } else {
             await guardarPropuesta({ ...receta, autor: $("autor").value.trim() });
@@ -393,6 +409,58 @@ if (modoAdmin) {
     document.querySelector('[data-indicador="3"]').textContent = "3. Enviar";
     $("publicar").textContent = "Enviar propuesta";
 }
+
+// Administrador: editar una receta publicada (?editar=ID) o revisar una propuesta (?propuesta=ID)
+async function cargarParaRevisar() {
+    const parametros = new URLSearchParams(location.search);
+    idEditar = parametros.get("editar");
+    idPropuesta = idEditar ? null : parametros.get("propuesta");
+    if (!idEditar && !idPropuesta) return;
+
+    let origen = null;
+    try {
+        origen = idEditar ? await obtenerReceta(idEditar) : await obtenerPendiente(idPropuesta);
+    } catch (e) {
+        console.error(e);
+    }
+    if (!origen) {
+        idEditar = idPropuesta = null;
+        $("publicar").disabled = true;
+        return mostrarMensaje("No se encontró esa receta o propuesta. Vuelve al panel e inténtalo de nuevo.");
+    }
+
+    $("nombre").value = origen.nombre || "";
+    $("descripcion").value = origen.descripcion || "";
+    $("coccion").value = origen.coccion || "";
+    $("tiempo").value = origen.tiempo || "";
+    $("nota").value = origen.nota || "";
+    datos.ingredientes = [...(origen.ingredientes || [])];
+    datos.pasos = [...(origen.preparacion || [])];
+    dibujarIngredientes();
+    dibujarPasos();
+    autorOriginal = origen.autor || null;
+
+    if (idEditar && imagenSegura(origen.imagen)) {
+        datos.imagen = origen.imagen;
+        $("quiere-imagen").checked = true;
+        $("zona-imagen").hidden = false;
+        vistaPrevia.src = origen.imagen;
+        vistaPrevia.hidden = false;
+        mostrarMensaje("Esta es la imagen actual. Elige otra para cambiarla, o desmarca la casilla para quitarla.", "info", estadoImagen);
+    }
+
+    if (idEditar) {
+        $("titulo-agregar").innerHTML = "Editar <span>receta</span>";
+        etiquetaBoton = "Guardar cambios";
+    } else {
+        $("titulo-agregar").innerHTML = "Revisar <span>propuesta</span>";
+        etiquetaBoton = "Publicar receta";
+        mostrarMensaje(`Propuesta${autorOriginal ? " de " + autorOriginal : ""}: corrige lo que haga falta y publícala. Puedes agregar una imagen.`, "info");
+    }
+    $("publicar").textContent = etiquetaBoton;
+}
+
+if (modoAdmin) await cargarParaRevisar();
 $("zona-admin").hidden = false;
 
 $("salir").addEventListener("click", async () => {

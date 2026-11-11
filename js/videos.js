@@ -1,22 +1,10 @@
-// Videos de YouTube (videos.html). Solo se guardan los enlaces; el video lo carga YouTube.
-import {
-    configurado, esAdmin, obtenerVideos, guardarVideo, eliminarVideo, extraerIdYoutube, cerrarSesion,
-} from "./comunidad.js";
+// Videos de YouTube (videos.html, página pública). Solo se guardan los enlaces; el video lo carga YouTube.
+// Para agregar, editar o eliminar videos se usa el panel de administración (admin.html).
+import { configurado, obtenerVideos } from "./comunidad.js";
 
 const $ = (id) => document.getElementById(id);
 const lista = $("lista-videos");
 const PATRON_ID = /^[A-Za-z0-9_-]{11}$/;
-let admin = false;
-
-function aviso(texto, tipo = "error") {
-    const caja = $("mensaje");
-    caja.innerHTML = "";
-    if (!texto) return;
-    const div = document.createElement("div");
-    div.className = `alerta alerta-${tipo}`;
-    div.textContent = texto;
-    caja.appendChild(div);
-}
 
 function el(etiqueta, clase, texto) {
     const nodo = document.createElement(etiqueta);
@@ -49,25 +37,6 @@ function crearTarjeta(v) {
     cuerpo.appendChild(el("h3", "", v.titulo));
     if (v.descripcion) cuerpo.appendChild(el("p", "", v.descripcion));
 
-    if (admin) {
-        const borrar = el("button", "boton boton-secundario", "Eliminar video");
-        borrar.type = "button";
-        borrar.addEventListener("click", async () => {
-            if (!confirm(`¿Eliminar el video "${v.titulo}"? No se puede deshacer.`)) return;
-            borrar.disabled = true;
-            try {
-                await eliminarVideo(v.id);
-                tarjeta.remove();
-                revisarVacio();
-            } catch (e) {
-                console.error(e);
-                aviso("No se pudo eliminar el video.");
-                borrar.disabled = false;
-            }
-        });
-        cuerpo.appendChild(borrar);
-    }
-
     tarjeta.append(caja, cuerpo);
     return tarjeta;
 }
@@ -92,33 +61,5 @@ async function cargar() {
         lista.replaceChildren(el("p", "estado", "No se pudieron cargar los videos. Recarga la página."));
     }
 }
-
-admin = await esAdmin();
-if (admin) {
-    $("zona-admin-videos").hidden = false;
-    $("salir").addEventListener("click", async () => {
-        await cerrarSesion();
-        location.href = "login.html";
-    });
-}
-
-$("form-video").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const titulo = $("titulo").value.trim();
-    const ytId = extraerIdYoutube($("enlace").value);
-    if (titulo.length < 3) return aviso("Escribe un título (mínimo 3 letras).");
-    if (!ytId) return aviso("Pega un enlace válido de YouTube (youtube.com/watch?v=... o youtu.be/...).");
-    $("guardar").disabled = true;
-    try {
-        await guardarVideo({ titulo, ytId, descripcion: $("descripcion").value.trim() });
-        $("form-video").reset();
-        aviso("Video agregado.", "ok");
-        await cargar();
-    } catch (err) {
-        console.error(err);
-        aviso("No se pudo guardar. Revisa tu sesión y tu conexión.");
-    }
-    $("guardar").disabled = false;
-});
 
 await cargar();

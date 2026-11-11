@@ -152,7 +152,7 @@ a {
     margin-right: 40px;
     border-radius: 50%;
     border: 14px solid var(--amarillo);
-    background: url("imagenes/portada.png") center / cover, var(--amarillo);
+    background: url("imagenes/portada.jpg") center / cover, var(--amarillo);
     box-shadow: 0 0 0 30px rgba(255, 206, 0, 0.25), 0 0 0 60px rgba(255, 206, 0, 0.1);
 }
 
@@ -1032,3 +1032,32 @@ label.campo[for="clave"] {
         font-size: 14px;
     }
 }
+
+/* Panel de administración */
+.pestanas { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+.pestana {
+    padding: 12px 22px; border: 2px solid #d5deef; border-radius: 40px;
+    background: var(--blanco); color: var(--azul); font: inherit; font-weight: 700; cursor: pointer;
+}
+.pestana.activa { background: var(--azul); border-color: var(--azul); color: var(--amarillo); }
+.contador {
+    display: inline-block; min-width: 22px; margin-left: 6px; padding: 1px 7px; border-radius: 12px;
+    background: var(--amarillo); color: var(--azul); font-size: .8rem; text-align: center;
+}
+.panel-cabecera { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.panel-cabecera p { flex: 1; min-width: 220px; margin: 0; }
+.panel-cabecera .boton { margin-top: 0; }
+.fila-admin {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+    padding: 16px 20px; margin-bottom: 12px; background: var(--blanco); border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(4, 46, 125, 0.08);
+}
+.fila-info { min-width: 200px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.fila-info small { color: #5b6b8c; }
+.fila-miniatura { width: 96px; height: 54px; object-fit: cover; border-radius: 8px; background: #0b1f4d; }
+.fila-botones { display: flex; flex-wrap: wrap; gap: 8px; }
+.boton-chico { margin-top: 0; padding: 9px 18px; font-size: .78rem; box-shadow: none; }
+.boton-peligro { background: #fde8e8; color: #a00; }
+.boton-peligro:hover { background: #f9d0d0; }
+
+.boton-chico { font: inherit; font-size: .8rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; line-height: 1.2; }

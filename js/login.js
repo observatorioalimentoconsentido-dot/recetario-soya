@@ -17,7 +17,7 @@ if (!configurado) {
     $("entrar").disabled = true;
     mostrar("Falta configurar Firebase (js/firebase-config.js).", "info");
 } else if (await esAdmin()) {
-    location.replace("agregar.html"); // ya tiene sesión
+    location.replace("admin.html"); // ya tiene sesión
 }
 
 // Mostrar / ocultar la contraseña para comprobar que se escribió bien
@@ -60,7 +60,7 @@ $("login").addEventListener("submit", async (e) => {
             boton.disabled = false;
             return;
         }
-        location.href = "agregar.html";
+        location.href = "admin.html";
     } catch (err) {
         console.error(err);
         mostrar("Correo o contraseña incorrectos.");

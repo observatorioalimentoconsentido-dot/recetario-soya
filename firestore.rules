@@ -18,22 +18,24 @@ service cloud.firestore {
       allow list, write: if false;
     }
 
+    // Recetas: todos las ven; solo el administrador crea, edita y borra.
     match /recetas/{receta} {
-      // Cualquiera puede ver las recetas.
       allow read: if true;
-
-      // Solo el administrador puede crear y borrar, y la receta debe tener el formato correcto.
-      allow create: if esAdmin() && recetaValida(request.resource.data);
+      allow create: if esAdmin() && recetaValida(request.resource.data)
+        && request.resource.data.fecha == request.time;
+      allow update: if esAdmin() && recetaValida(request.resource.data)
+        && request.resource.data.fecha == resource.data.fecha;
       allow delete: if esAdmin();
-      allow update: if false;
     }
 
-    // Videos de YouTube: todos los ven, solo el administrador agrega o borra.
+    // Videos de YouTube: todos los ven; solo el administrador agrega, edita y borra.
     match /videos/{video} {
       allow read: if true;
-      allow create: if esAdmin() && videoValido(request.resource.data);
+      allow create: if esAdmin() && videoValido(request.resource.data)
+        && request.resource.data.fecha == request.time;
+      allow update: if esAdmin() && videoValido(request.resource.data)
+        && request.resource.data.fecha == resource.data.fecha;
       allow delete: if esAdmin();
-      allow update: if false;
     }
 
     // Propuestas de visitantes: cualquiera puede ENVIAR una, pero solo el administrador puede
@@ -50,7 +52,7 @@ service cloud.firestore {
         && v.titulo is string && v.titulo.size() >= 3 && v.titulo.size() <= 100
         && v.ytId is string && v.ytId.size() == 11
         && (v.descripcion == null || (v.descripcion is string && v.descripcion.size() <= 200))
-        && v.fecha == request.time;
+        && v.fecha is timestamp;
     }
 
     function pendienteValida(r) {
@@ -79,7 +81,7 @@ service cloud.firestore {
         && (r.nota == null || (r.nota is string && r.nota.size() <= 400))
         && (r.autor == null || (r.autor is string && r.autor.size() >= 1 && r.autor.size() <= 60))
         && (r.imagen == null || (r.imagen is string && r.imagen.size() <= 350000))
-        && r.fecha == request.time;
+        && r.fecha is timestamp;
     }
   }
 }

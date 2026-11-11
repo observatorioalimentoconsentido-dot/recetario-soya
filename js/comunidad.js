@@ -4,7 +4,7 @@
 // ============================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-    getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, doc, writeBatch,
+    getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, updateDoc, doc, writeBatch,
     query, orderBy, limit, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {
@@ -131,6 +131,52 @@ export async function rechazarPendiente(id) {
     await deleteDoc(doc(db, "pendientes", id));
 }
 
+/** Edita una receta ya publicada (solo administrador). No cambia la fecha original. */
+export async function actualizarReceta(id, r) {
+    revisar();
+    await updateDoc(doc(db, "recetas", id), {
+        nombre: r.nombre,
+        descripcion: r.descripcion,
+        coccion: r.coccion,
+        tiempo: r.tiempo,
+        ingredientes: r.ingredientes,
+        preparacion: r.preparacion,
+        nota: r.nota || null,
+        autor: r.autor || null,
+        imagen: r.imagen || null,
+    });
+}
+
+/** Una propuesta pendiente por su id (solo administrador), o null. */
+export async function obtenerPendiente(id) {
+    revisar();
+    if (!/^[A-Za-z0-9]{1,40}$/.test(id)) return null;
+    const documento = await getDoc(doc(db, "pendientes", id));
+    return documento.exists() ? { id: documento.id, ...documento.data() } : null;
+}
+
+/** Publica una propuesta ya revisada/corregida por el administrador y la saca de pendientes. Devuelve el id nuevo. */
+export async function publicarDesdePropuesta(idPendiente, r) {
+    revisar();
+    const lote = writeBatch(db);
+    const nueva = doc(collection(db, "recetas"));
+    lote.set(nueva, {
+        nombre: r.nombre,
+        descripcion: r.descripcion,
+        coccion: r.coccion,
+        tiempo: r.tiempo,
+        ingredientes: r.ingredientes,
+        preparacion: r.preparacion,
+        nota: r.nota || null,
+        autor: r.autor || null,
+        imagen: r.imagen || null,
+        fecha: serverTimestamp(),
+    });
+    lote.delete(doc(db, "pendientes", idPendiente));
+    await lote.commit();
+    return nueva.id;
+}
+
 export async function eliminarReceta(id) {
     revisar();
     await deleteDoc(doc(db, "recetas", id));
@@ -198,6 +244,15 @@ export async function guardarVideo(v) {
         ytId: v.ytId,
         descripcion: v.descripcion || null,
         fecha: serverTimestamp(),
+    });
+}
+
+export async function actualizarVideo(id, v) {
+    revisar();
+    await updateDoc(doc(db, "videos", id), {
+        titulo: v.titulo,
+        ytId: v.ytId,
+        descripcion: v.descripcion || null,
     });
 }
 

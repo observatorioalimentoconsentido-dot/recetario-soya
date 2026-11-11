@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de administración | Recetario de Soya - UNIMINUTO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="pagina.css">
+</head>
+<body>
+
+    <header class="barra">
+        <a class="marca" href="index.html">
+            <span class="marca-logo" role="img" aria-label="Logo UNIMINUTO"></span>
+            <span class="marca-texto">
+                <strong>UNIMINUTO</strong>
+                <small>Recetario de Soya</small>
+            </span>
+        </a>
+        <nav class="menu">
+            <a href="index.html">Inicio</a>
+            <a href="pan-de-soya.html">Pan de soya</a>
+            <a href="mantecada-de-soya.html">Mantecada de soya</a>
+            <a href="arepas-de-soya.html">Arepas de soya</a>
+            <a href="videos.html">Videos</a>
+            <a href="recetas.html">Más recetas</a>
+        </nav>
+    </header>
+
+    <section class="recetas">
+        <h2 class="titulo-seccion">Panel de <span>administración</span></h2>
+
+        <div id="panel" hidden style="max-width:1000px;margin:0 auto">
+            <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+                <button type="button" class="boton boton-secundario" id="salir">Cerrar sesión</button>
+            </div>
+
+            <div class="pestanas" role="tablist">
+                <button type="button" class="pestana activa" data-pestana="recetas" role="tab">Recetas</button>
+                <button type="button" class="pestana" data-pestana="videos" role="tab">Videos</button>
+                <button type="button" class="pestana" data-pestana="solicitudes" role="tab">Solicitudes <span class="contador" id="cont-solicitudes" hidden>0</span></button>
+            </div>
+
+            <div id="mensaje"></div>
+
+            <!-- ===== RECETAS ===== -->
+            <div data-panel="recetas">
+                <div class="panel-cabecera">
+                    <p>Recetas guardadas en la base de datos. Las 3 recetas fijas (pan, mantecada y arepas) no se editan desde aquí.</p>
+                    <a class="boton boton-azul" href="agregar.html">+ Nueva receta</a>
+                </div>
+                <div id="lista-recetas"><p class="estado">Cargando...</p></div>
+            </div>
+
+            <!-- ===== VIDEOS ===== -->
+            <div data-panel="videos" hidden>
+                <form class="formulario" id="form-video" novalidate style="margin-bottom:28px">
+                    <h3 id="titulo-form-video">Agregar un video</h3>
+                    <label class="campo">Título
+                        <input type="text" id="titulo" maxlength="100" placeholder="Ej: Pan de soya - Semestre 2026-1">
+                    </label>
+                    <label class="campo">Enlace de YouTube
+                        <input type="text" id="enlace" placeholder="https://www.youtube.com/watch?v=...">
+                    </label>
+                    <label class="campo">Descripción (opcional)
+                        <input type="text" id="descripcion" maxlength="200">
+                    </label>
+                    <div id="mensaje-video"></div>
+                    <div class="botones-etapa">
+                        <button type="button" class="boton boton-secundario" id="cancelar-video" hidden>Cancelar</button>
+                        <button type="submit" class="boton boton-azul" id="guardar-video">Agregar video</button>
+                    </div>
+                </form>
+                <div id="lista-videos"><p class="estado">Cargando...</p></div>
+            </div>
+
+            <!-- ===== SOLICITUDES ===== -->
+            <div data-panel="solicitudes" hidden>
+                <div class="panel-cabecera">
+                    <p>Recetas propuestas por visitantes. No se publican hasta que las apruebes.</p>
+                </div>
+                <div id="lista-solicitudes"><p class="estado">Cargando...</p></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="pie">
+        <p><strong>Corporación Universitaria Minuto de Dios - UNIMINUTO</strong></p>
+        <p>Práctica de Responsabilidad Social · Proyecto "Seguridad Alimentaria: Saberes y Conocimientos"</p>
+        <p><a href="login.html" style="opacity:.7;font-size:.85em">Acceso administrador</a></p>
+    </footer>
+
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>
