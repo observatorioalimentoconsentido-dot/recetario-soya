@@ -4,6 +4,7 @@ import {
     obtenerRecetas, eliminarReceta,
     obtenerVideos, guardarVideo, actualizarVideo, eliminarVideo, extraerIdYoutube,
     obtenerPendientes, aprobarPendiente, rechazarPendiente,
+    obtenerVideosPendientes, aprobarVideoPendiente, rechazarVideoPendiente,
 } from "./comunidad.js";
 
 const $ = (id) => document.getElementById(id);
@@ -200,7 +201,7 @@ $("form-video").addEventListener("submit", async (e) => {
 const listaSolicitudes = $("lista-solicitudes");
 
 function actualizarContador() {
-    const n = listaSolicitudes.querySelectorAll(".solicitud").length;
+    const n = document.querySelectorAll("#lista-solicitudes .solicitud, #lista-solicitudes-video .solicitud").length;
     $("cont-solicitudes").textContent = String(n);
     $("cont-solicitudes").hidden = n === 0;
 }
@@ -278,6 +279,70 @@ async function cargarSolicitudes() {
     }
 }
 
+// ---------- videos propuestos ----------
+const listaSolVideos = $("lista-solicitudes-video");
+
+function tarjetaSolicitudVideo(v) {
+    const tarjeta = el("article", "formulario solicitud");
+    tarjeta.style.marginBottom = "24px";
+    const fila = el("div", "solicitud-video");
+    const mini = el("div", "video-mini");
+    mini.style.backgroundImage = `url("https://i.ytimg.com/vi/${v.ytId}/mqdefault.jpg")`;
+    const info = el("div");
+    info.append(el("h3", "", v.titulo));
+    if (v.descripcion) info.append(el("p", "", v.descripcion));
+    if (v.autor) info.append(el("p", "", `De: ${v.autor}`));
+    const ver = el("a", "", "Ver en YouTube (se abre en otra pestaña)");
+    ver.href = `https://www.youtube.com/watch?v=${v.ytId}`;
+    ver.target = "_blank";
+    ver.rel = "noopener noreferrer";
+    info.append(ver);
+    fila.append(mini, info);
+    tarjeta.appendChild(fila);
+
+    const botones = el("div", "fila-botones");
+    botones.style.marginTop = "18px";
+    botones.style.justifyContent = "flex-end";
+    const todos = [];
+    const bloquear = (si) => todos.forEach((b) => { b.disabled = si; });
+    const terminar = (texto, tipo) => {
+        tarjeta.remove();
+        vacio(listaSolVideos, "No hay videos pendientes.");
+        actualizarContador();
+        aviso(texto, tipo);
+    };
+    const rechazar = boton("Rechazar", "boton-peligro", async () => {
+        if (!confirm(`¿Rechazar y borrar la propuesta "${v.titulo}"? No se puede deshacer.`)) return;
+        bloquear(true);
+        try { await rechazarVideoPendiente(v.id); terminar(`"${v.titulo}" fue rechazado y borrado.`, "info"); }
+        catch (e) { console.error(e); aviso("No se pudo rechazar. Revisa tu sesión y tu conexión."); bloquear(false); }
+    });
+    const aprobar = boton("Aprobar y publicar", "boton-azul", async () => {
+        bloquear(true);
+        try {
+            await aprobarVideoPendiente(v);
+            terminar(`"${v.titulo}" fue aprobado y ya aparece en Videos.`, "ok");
+            await cargarVideos();
+        } catch (e) { console.error(e); aviso("No se pudo aprobar. Revisa tu sesión y tu conexión."); bloquear(false); }
+    });
+    todos.push(rechazar, aprobar);
+    botones.append(rechazar, aprobar);
+    tarjeta.appendChild(botones);
+    return tarjeta;
+}
+
+async function cargarSolicitudesVideo() {
+    try {
+        const lista = (await obtenerVideosPendientes()).filter((v) => PATRON_ID.test(String(v.ytId)));
+        listaSolVideos.replaceChildren(...lista.map(tarjetaSolicitudVideo));
+        vacio(listaSolVideos, "No hay videos pendientes.");
+        actualizarContador();
+    } catch (e) {
+        console.error(e);
+        listaSolVideos.replaceChildren(el("p", "estado", "No se pudieron cargar los videos propuestos. Recarga la página."));
+    }
+}
+
 // ---------- inicio ----------
 if (!configurado || !(await esAdmin())) {
     location.replace("login.html");
@@ -288,5 +353,5 @@ if (!configurado || !(await esAdmin())) {
         location.href = "login.html";
     });
     mostrarPestana(location.hash.slice(1));
-    await Promise.all([cargarRecetas(), cargarVideos(), cargarSolicitudes()]);
+    await Promise.all([cargarRecetas(), cargarVideos(), cargarSolicitudes(), cargarSolicitudesVideo()]);
 }

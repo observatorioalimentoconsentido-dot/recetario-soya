@@ -32,7 +32,35 @@
         <h2 class="titulo-seccion">Videos de <span>recetas</span></h2>
         <h3 class="subtitulo-seccion">Recetas preparadas por estudiantes en semestres anteriores</h3>
 
-        <div class="tarjetas" id="lista-videos"><p class="estado">Cargando videos...</p></div>
+        <div class="proponer-video">
+            <button type="button" class="boton boton-azul" id="abrir-proponer">+ Proponer un video</button>
+            <form class="formulario" id="form-proponer" novalidate hidden>
+                <h3>Propón un video de YouTube</h3>
+                <p>Pega el enlace de un video de YouTube sobre una receta. Se publicará cuando el administrador lo apruebe.</p>
+                <label class="campo">Título
+                    <input type="text" id="p-titulo" maxlength="100" placeholder="Ej: Cómo preparar pan de soya">
+                </label>
+                <label class="campo">Enlace de YouTube
+                    <input type="text" id="p-enlace" placeholder="https://www.youtube.com/watch?v=...">
+                </label>
+                <label class="campo">Descripción (opcional)
+                    <input type="text" id="p-descripcion" maxlength="200">
+                </label>
+                <label class="campo">Tu nombre (opcional)
+                    <input type="text" id="p-autor" maxlength="60">
+                </label>
+                <div class="oculto-trampa" aria-hidden="true">
+                    <label>No llenar este campo <input type="text" id="p-web" tabindex="-1" autocomplete="off"></label>
+                </div>
+                <div id="mensaje-proponer"></div>
+                <div class="botones-etapa">
+                    <button type="button" class="boton boton-secundario" id="cancelar-proponer">Cancelar</button>
+                    <button type="submit" class="boton boton-azul" id="enviar-proponer">Enviar propuesta</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tarjetas tarjetas-video" id="lista-videos"><p class="estado">Cargando videos...</p></div>
     </section>
 
     <footer class="pie">

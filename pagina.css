@@ -1061,3 +1061,20 @@ label.campo[for="clave"] {
 .boton-peligro:hover { background: #f9d0d0; }
 
 .boton-chico { font: inherit; font-size: .8rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; line-height: 1.2; }
+
+/* Videos más pequeños: tarjetas de ancho fijo y reproductor compacto */
+.tarjetas-video {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 260px));
+    justify-content: center;
+    gap: 22px;
+}
+.tarjetas-video .tarjeta-cuerpo { padding: 14px 16px 18px; }
+.tarjetas-video .tarjeta-cuerpo h3 { font-size: 1rem; margin-bottom: 6px; }
+.tarjetas-video .tarjeta-cuerpo p { font-size: 0.88rem; }
+.tarjetas-video .video-miniatura::after { width: 44px; height: 44px; font-size: 18px; }
+
+.proponer-video { max-width: 620px; margin: 0 auto 34px; text-align: center; }
+.proponer-video .formulario { text-align: left; margin-top: 16px; }
+.oculto-trampa { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.video-mini { width: 120px; aspect-ratio: 16 / 9; border-radius: 8px; background: #0b1f4d center / cover no-repeat; flex: none; }
+.solicitud-video { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }

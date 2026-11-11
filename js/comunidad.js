@@ -261,6 +261,45 @@ export async function eliminarVideo(id) {
     await deleteDoc(doc(db, "videos", id));
 }
 
+// ---------- Propuestas de video de visitantes (el administrador las aprueba) ----------
+export async function guardarPropuestaVideo(v) {
+    revisar();
+    await addDoc(collection(db, "videosPendientes"), {
+        titulo: v.titulo,
+        ytId: v.ytId,
+        descripcion: v.descripcion || null,
+        autor: v.autor || null,
+        fecha: serverTimestamp(),
+    });
+}
+
+/** Solo el administrador puede leerlas. De la más antigua a la más nueva. */
+export async function obtenerVideosPendientes() {
+    revisar();
+    const consulta = query(collection(db, "videosPendientes"), orderBy("fecha", "asc"), limit(100));
+    const resultado = await getDocs(consulta);
+    return resultado.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+/** Publica la propuesta como video y la saca de pendientes (las dos cosas juntas, o ninguna). */
+export async function aprobarVideoPendiente(v) {
+    revisar();
+    const lote = writeBatch(db);
+    lote.set(doc(collection(db, "videos")), {
+        titulo: v.titulo,
+        ytId: v.ytId,
+        descripcion: v.descripcion || null,
+        fecha: serverTimestamp(),
+    });
+    lote.delete(doc(db, "videosPendientes", v.id));
+    await lote.commit();
+}
+
+export async function rechazarVideoPendiente(id) {
+    revisar();
+    await deleteDoc(doc(db, "videosPendientes", id));
+}
+
 /** Pone la imagen de la receta como fondo de un elemento (o deja el degradado si no tiene). */
 export function ponerImagen(elemento, imagen) {
     const segura = imagenSegura(imagen);

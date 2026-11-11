@@ -46,6 +46,23 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // Propuestas de video de visitantes: cualquiera envía, solo el administrador lee y borra.
+    match /videosPendientes/{propuesta} {
+      allow create: if videoPendienteValido(request.resource.data);
+      allow read, delete: if esAdmin();
+      allow update: if false;
+    }
+
+    function videoPendienteValido(v) {
+      return v.keys().hasOnly(['titulo', 'ytId', 'descripcion', 'autor', 'fecha'])
+        && v.keys().hasAll(['titulo', 'ytId', 'descripcion', 'autor', 'fecha'])
+        && v.titulo is string && v.titulo.size() >= 3 && v.titulo.size() <= 100
+        && v.ytId is string && v.ytId.size() == 11
+        && (v.descripcion == null || (v.descripcion is string && v.descripcion.size() <= 200))
+        && (v.autor == null || (v.autor is string && v.autor.size() >= 1 && v.autor.size() <= 60))
+        && v.fecha == request.time;
+    }
+
     function videoValido(v) {
       return v.keys().hasOnly(['titulo', 'ytId', 'descripcion', 'fecha'])
         && v.keys().hasAll(['titulo', 'ytId', 'descripcion', 'fecha'])
